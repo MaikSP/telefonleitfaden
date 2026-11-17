@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Telefonleitfaden B2B</title>
+<style>
+  :root{--blue:#cfe2ff;--blue-b:#2a5db0;--grey:#ececec;--grey-b:#888;--red:#fbd0d0;--red-b:#c0392b;--green:#d6f0d6;--green-b:#2e8b3e;--ink:#1c1c1c}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#fafafa;font-size:18px;line-height:1.4}
+  header{position:sticky;top:0;background:#fff;border-bottom:1px solid #ddd;padding:10px 16px;z-index:5;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  header h1{font-size:16px;margin:0 12px 0 0}
+  button{font:inherit;cursor:pointer}
+  .chip{border:2px solid var(--red-b);background:var(--red);border-radius:999px;padding:4px 12px;font-size:14px}
+  .nav{border:1px solid #999;background:#fff;border-radius:6px;padding:4px 12px;font-size:14px}
+  .spacer{flex:1}
+  main{max-width:860px;margin:0 auto;padding:16px}
+  .trail{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:#555;margin-bottom:14px}
+  .trail span.t{border:1px solid #bbb;border-radius:999px;padding:2px 10px;background:#fff;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .phase{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#555;margin:0 0 6px 6px}
+  .bubble{border:3px solid;border-radius:40px;padding:22px 30px;position:relative}
+  .bubble .who{font-size:13px;font-weight:700;letter-spacing:.06em;margin-bottom:6px}
+  .bubble.sie{background:var(--blue);border-color:var(--blue-b)}
+  .bubble.ew{background:var(--red);border-color:var(--red-b)}
+  .bubble.end{background:var(--green);border-color:var(--green-b)}
+  .bubble .txt{font-size:21px;font-weight:500}
+  .hint{margin-top:12px;font-size:16px;color:#333;border-top:1px dashed #888;padding-top:8px}
+  .arrow{text-align:center;font-size:30px;line-height:1;color:#555;margin:6px 0}
+  .lbl{text-align:center;font-size:14px;font-weight:700;color:#555;margin-bottom:8px}
+  .answers{display:flex;flex-direction:column;gap:10px}
+  .ans{border:3px solid var(--grey-b);background:var(--grey);border-radius:999px;padding:14px 24px;text-align:left;display:flex;gap:12px;align-items:center}
+  .ans:hover{background:#e0e0e0}
+  .ans .a{font-size:24px;color:#555}
+  .ans small{display:block;color:#555;font-size:14px}
+  .ans.go{background:#fff;border-color:var(--blue-b)}
+  .ans.go:hover{background:var(--blue)}
+  .ans.new{background:#fff;border-color:var(--green-b)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Telefonleitfaden</h1>
+  <span style="font-size:13px;color:#555">Einwand:</span>
+  <span id="chips"></span>
+  <span class="spacer"></span>
+  <button class="nav" id="back">&#9664; Zurück</button>
+  <button class="nav" id="restart">Neu starten</button>
+</header>
+<main>
+  <div class="trail" id="trail"></div>
+  <div id="view"></div>
+</main>
+<script>
+var N = {
+ start:{ph:"1 Einstieg",who:"SIE",t:"„Guten Tag, [Vorname Nachname] von [Firma/VD Spindler]. Ich habe eine kurze Frage, bei der Sie mir sicher weiterhelfen können.“ (Pause) „Wer kümmert sich bei Ihnen um die Themen Versicherungen und Absicherung der Mitarbeiter?“",h:"Pause machen, zuhören",short:"Einstieg",a:[["„Das bin ich.“ (Inhaber / Geschäftsführer)","wahl"],["„Das macht jemand anderes.“ (Empfang / Mitarbeiter)","ent"],["„Worum geht es?“","worum"]]},
+ worum:{ph:"1 Einstieg",who:"SIE",t:"„Um die Absicherung im Betrieb, kurz gesagt, ob bei Ihnen da etwas offen ist. Ich möchte nur zur richtigen Person.“",h:"Danach die Frage nach der Zuständigkeit wiederholen",short:"Worum geht es?",a:[["Zurück zur Zuständigkeitsfrage","start"]]},
+ wahl:{ph:"Weiche",who:"SIE",t:"Hat der Betrieb Mitarbeiter?",h:"Nur zur Orientierung, nicht vorlesen",short:"Mitarbeiter?",a:[["Betrieb mit Mitarbeitern","b1"],["Einzelunternehmer","e1"]]},
+ ent:{ph:"2 Entscheider ermitteln",who:"SIE",t:"„Wer ist das genau, und wann erreiche ich die Person am besten?“ – „Darf ich durchgestellt werden, oder ist es besser, ich rufe zu einer bestimmten Zeit zurück?“",h:"",short:"Entscheider",a:[["Wird durchgestellt","wahl"],["Nicht möglich","ent2"]]},
+ ent2:{ph:"2 Entscheider ermitteln",who:"SIE",t:"„Wie ist der Name und die Funktion? Dann kann ich mich direkt darauf beziehen.“",h:"",short:"Name/Funktion",a:[["Angaben erhalten","rueck"]]},
+ rueck:{ph:"Ergebnis",who:"ENDE",type:"end",t:"Rückruf vereinbaren",h:"IN DIE LISTE: Name, Funktion, beste Zeit, Mitarbeiterzahl. Status: Rückruf",short:"Rückruf",a:[["Nächster Anruf","start","new"]]},
+ b1:{ph:"3 Betrieb mit Mitarbeitern",who:"SIE",t:"„Schön, dass ich Sie direkt habe. Ich halte es kurz: Wir unterstützen Betriebe in [Region] dabei, ihren Mitarbeitern Zusatzleistungen wie Altersvorsorge oder Krankenzusatz anzubieten, ohne dass beim Chef viel Arbeit anfällt. Ich weiß nicht, ob das bei Ihnen überhaupt ein Thema ist, deshalb eine Frage:“",h:"",short:"Einstieg Betrieb",a:[["Weiter","b2","go"]]},
+ b2:{ph:"3 Betrieb mit Mitarbeitern",who:"SIE",t:"Frage 1: „Bieten Sie Ihren Mitarbeitern aktuell schon etwas in die Richtung an, Altersvorsorge oder Gesundheit?“",h:"Zuhören, Pausen lassen",short:"Frage 1",a:[["Kunde hat geantwortet","b3","go"]]},
+ b3:{ph:"3 Betrieb mit Mitarbeitern",who:"SIE",t:"Frage 2: „Wie läuft das bei Ihnen mit dem Thema Mitarbeiter finden und halten?“",h:"Zuhören",short:"Frage 2",a:[["Kunde hat geantwortet","b4","go"]]},
+ b4:{ph:"3 Betrieb mit Mitarbeitern",who:"SIE",t:"Frage 3: „Wer kümmert sich bei Ihnen intern um sowas?“",h:"Zuhören",short:"Frage 3",a:[["Kunde hat geantwortet","b5","go"]]},
+ b5:{ph:"3 Betrieb mit Mitarbeitern",who:"SIE",t:"Nutzen (nur an das anknüpfen, was er gesagt hat): „Dann ist genau das der Punkt: Das lässt sich oft so aufsetzen, dass Sie ein Argument für Ihre Leute haben und der Aufwand überschaubar bleibt. Das ist aber individuell. Deshalb würde ich es nicht am Telefon erklären.“",h:"",short:"Nutzen",a:[["Weiter zum Abschluss","s1","go"]]},
+ e1:{ph:"4 Einzelunternehmer",who:"SIE",t:"„Schön, dass ich Sie direkt habe. Ich melde mich bei Selbstständigen in [Region], weil bei Einzelkämpfern die Absicherung oft nebenbei mitläuft. Haben Sie zwei Minuten?“",h:"",short:"Einstieg Einzel",a:[["Weiter","e2","go"]]},
+ e2:{ph:"4 Einzelunternehmer",who:"SIE",t:"Frage 1: „Womit sind Sie selbstständig, und arbeiten Sie mit Maschinen oder Geräten?“",h:"Zuhören",short:"Frage 1",a:[["Kunde hat geantwortet","e3","go"]]},
+ e3:{ph:"4 Einzelunternehmer",who:"SIE",t:"Frage 2: „Haben Sie Ihren Betrieb und Ihre Ausstattung abgesichert, und wann haben Sie das zuletzt prüfen lassen?“",h:"Zuhören",short:"Frage 2",a:[["Kunde hat geantwortet","e4","go"]]},
+ e4:{ph:"4 Einzelunternehmer",who:"SIE",t:"Frage 3: „Was passiert bei Ihnen, wenn Sie ein paar Wochen ausfallen?“",h:"Zuhören",short:"Frage 3",a:[["Kunde hat geantwortet","e5","go"]]},
+ e5:{ph:"4 Einzelunternehmer",who:"SIE",t:"Nutzen: „Gerade wenn man alles allein macht, hängt am Betrieb ja alles an einer Person. Ich schaue mir das gern kostenlos an und sage Ihnen ehrlich, ob etwas fehlt oder ob alles passt.“",h:"",short:"Nutzen",a:[["Weiter zum Abschluss","s1","go"]]},
+ s1:{ph:"5 Abschluss: Termin vereinbaren",who:"SIE",t:"Stufe 1 (Standard): „Ich schlage vor, wir machen dazu ein kurzes Online-Gespräch, nur 10 Minuten. Danach wissen Sie, ob es für Sie Sinn ergibt, und ich verspreche Ihnen, dass es nicht länger dauert. Passt Ihnen eher [Tag] oder [Tag]?“",h:"",short:"Stufe 1 Online",a:[["„Ja, passt.“","termin"],["„Online ist nichts für mich.“","s2"]]},
+ s2:{ph:"5 Abschluss: Termin vereinbaren",who:"SIE",t:"Stufe 2: „Kein Problem. Dann komme ich gern kurz bei Ihnen vorbei, mit 15 Minuten kalkuliert. Wann sind Sie vor Ort, eher vormittags oder nachmittags?“",h:"",short:"Stufe 2 Besuch",a:[["„Ja, passt.“","termin"],["Interesse da, Besuch passt nicht","s3"]]},
+ s3:{ph:"5 Abschluss: Termin vereinbaren",who:"SIE",t:"Stufe 3 (nur wenn schon Interesse da ist): „Wenn Sie möchten, können Sie auch zu uns ins Büro kommen. Dann schauen wir in Ruhe gemeinsam drauf.“",h:"",short:"Stufe 3 Büro",a:[["„Ja, passt.“","termin"],["Nein","kein"]]},
+ termin:{ph:"Ergebnis",who:"ENDE",type:"end",t:"Termin vereinbart",h:"IN DIE LISTE: Status „Termin vereinbart“, Anrufdatum, Termin in die Notiz",short:"Termin",a:[["Nächster Anruf","start","new"]]},
+ kein:{ph:"7 Kein Termin",who:"SIE",t:"„Danke für Ihre Zeit. Darf ich mich in [Monat] nochmal kurz melden?“",h:"IN DIE LISTE: Ergebnis, Name des Entscheiders, Wiedervorlage",short:"Kein Termin",a:[["Nächster Anruf","start","new"]]},
+ ew1:{ph:"6 Einwand",who:"EINWAND",type:"ew",t:"„Kein Interesse.“ – Antwort:\n„Verstehe ich, ich habe Sie ja auch überrumpelt. Darf ich eine Frage stellen: Ist es kein Interesse, weil Sie schon alles geregelt haben, oder weil das Thema gerade nicht passt?“",h:"Zuhören, auf die Antwort eingehen, dann zurück zum Abschluss",short:"Kein Interesse",a:[["Zurück zum Abschluss","s1","go"],["Bleibt bei Nein","kein"]]},
+ ew2:{ph:"6 Einwand",who:"EINWAND",type:"ew",t:"„Haben wir schon / macht mein Berater.“ – Antwort:\n„Sehr gut. Dann geht es mir auch nicht darum, etwas zu ersetzen. Wann wurde das zuletzt gemeinsam angeschaut? Eine zweite Sicht kostet Sie nichts.“",h:"",short:"Haben wir schon",a:[["Zurück zum Abschluss","s1","go"],["Bleibt bei Nein","kein"]]},
+ ew3:{ph:"6 Einwand",who:"EINWAND",type:"ew",t:"„Keine Zeit / schicken Sie mir etwas per Mail.“ – Antwort:\n„Gern. Damit es nicht im Postfach versandet: Wäre ein Termin von 15 Minuten in der nächsten Woche besser? Dann erkläre ich Ihnen kurz, was ich meine, und Sie sehen, ob es passt.“",h:"",short:"Keine Zeit / Mail",a:[["Termin zugesagt","termin"],["Lehnt ab","mail"]]},
+ mail:{ph:"Ergebnis",who:"ENDE",type:"end",t:"E-Mail und Rückruf",h:"E-Mail-Adresse und Rückruftermin abfragen, passende E-Mail-Vorlage senden. IN DIE LISTE: Status Rückruf",short:"E-Mail",a:[["Nächster Anruf","start","new"]]},
+ ew4:{ph:"6 Einwand",who:"EINWAND",type:"ew",t:"„Online mache ich nicht / keine Zeit für Termine.“ – Antwort:\n„Das verstehe ich. Es geht auch ohne Bildschirm: kurzer Anruf von 10 Minuten, oder ich komme zu Ihnen. Was ist Ihnen lieber?“",h:"",short:"Online nicht",a:[["Zurück zum Abschluss","s1","go"],["Bleibt bei Nein","kein"]]}
+};
+var EW=[["Kein Interesse","ew1"],["Haben wir schon","ew2"],["Keine Zeit / Mail","ew3"],["Online nicht","ew4"]];
+var hist=["start"];
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\n/g,"<br>")}
+function go(id){hist.push(id);render()}
+function render(){
+  var id=hist[hist.length-1],n=N[id],type=n.type||"sie";
+  var tr="";
+  for(var i=Math.max(0,hist.length-6);i<hist.length-1;i++){tr+='<span class="t">'+esc(N[hist[i]].short)+'</span><span>&rarr;</span>'}
+  document.getElementById("trail").innerHTML=tr;
+  var h='<div class="phase">'+esc(n.ph)+'</div><div class="bubble '+type+'"><div class="who">'+(type=="end"?"ERGEBNIS":type=="ew"?"EINWAND":"SIE SAGEN")+'</div><div class="txt">'+esc(n.t)+'</div>'+(n.h?'<div class="hint">&#9658; '+esc(n.h)+'</div>':'')+'</div>';
+  h+='<div class="arrow">&#9660;</div><div class="lbl">'+(type=="end"?"":"Kunde sagt / nächster Schritt")+'</div><div class="answers">';
+  n.a.forEach(function(a,i){h+='<button class="ans '+(a[2]||"")+'" data-i="'+i+'"><span class="a">&#9658;</span><span>'+esc(a[0])+'</span></button>'});
+  h+='</div>';
+  document.getElementById("view").innerHTML=h;
+  document.querySelectorAll(".ans").forEach(function(b){b.onclick=function(){var t=n.a[+b.dataset.i][1];go(t)}});
+  window.scrollTo(0,0);
+}
+var c="";EW.forEach(function(e){c+='<button class="chip" data-id="'+e[1]+'">'+e[0]+'</button> '});
+document.getElementById("chips").innerHTML=c;
+document.querySelectorAll(".chip").forEach(function(b){b.onclick=function(){go(b.dataset.id)}});
+document.getElementById("back").onclick=function(){if(hist.length>1){hist.pop();render()}};
+document.getElementById("restart").onclick=function(){hist=["start"];render()};
+render();
+</script>
+</body>
+</html>
