@@ -35,6 +35,14 @@
   .ans.go{background:#fff;border-color:var(--blue-b)}
   .ans.go:hover{background:var(--blue)}
   .ans.new{background:#fff;border-color:var(--green-b)}
+  #skript h2{font-size:20px;margin:0 0 4px}
+  #skript .intro{color:#555;font-size:15px;margin:0 0 14px}
+  #skript .row{display:grid;grid-template-columns:230px 1fr;gap:16px;padding:12px 0;border-top:1px solid #ddd}
+  #skript .row .s{font-weight:700;font-size:15px}
+  #skript .row .x{font-size:17px}
+  #skript .row.ph{background:#e6eefb;border-top:2px solid var(--blue-b);padding:10px 8px;font-weight:700}
+  #skript .row.ew .s{color:var(--red-b)}
+  @media(max-width:640px){#skript .row{grid-template-columns:1fr;gap:4px}}
 </style>
 </head>
 <body>
@@ -43,12 +51,14 @@
   <span style="font-size:13px;color:#555">Einwand:</span>
   <span id="chips"></span>
   <span class="spacer"></span>
+  <button class="nav" id="doc">Gesamtes Skript lesen</button>
   <button class="nav" id="back">&#9664; Zurück</button>
   <button class="nav" id="restart">Neu starten</button>
 </header>
 <main>
   <div class="trail" id="trail"></div>
   <div id="view"></div>
+  <div id="skript" hidden></div>
 </main>
 <script>
 var N = {
@@ -84,6 +94,7 @@ var hist=["start"];
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\n/g,"<br>")}
 function go(id){hist.push(id);render()}
 function render(){
+  document.getElementById("skript").hidden=true;document.getElementById("view").hidden=false;document.getElementById("trail").hidden=false;
   var id=hist[hist.length-1],n=N[id],type=n.type||"sie";
   var tr="";
   for(var i=Math.max(0,hist.length-6);i<hist.length-1;i++){tr+='<span class="t">'+esc(N[hist[i]].short)+'</span><span>&rarr;</span>'}
@@ -101,6 +112,55 @@ document.getElementById("chips").innerHTML=c;
 document.querySelectorAll(".chip").forEach(function(b){b.onclick=function(){go(b.dataset.id)}});
 document.getElementById("back").onclick=function(){if(hist.length>1){hist.pop();render()}};
 document.getElementById("restart").onclick=function(){hist=["start"];render()};
+var SK=[
+["H","Ziel"],
+["","Entscheider ermitteln und einen 10-Minuten-Online-Termin vereinbaren. Ton: kurzes Anliegen, kein Verkaufsgespräch. Ruhig, freundlich, nicht abspulen, nach Fragen warten."],
+["H","1 Einstieg"],
+["1 Einstieg (immer gleich)","„Guten Tag, [Vorname Nachname] von [Firma/VD Spindler]. Ich habe eine kurze Frage, bei der Sie mir sicher weiterhelfen können.“ (Pause) „Wer kümmert sich bei Ihnen um die Themen Versicherungen und Absicherung der Mitarbeiter?“"],
+["1A Antwort: Das bin ich","Inhaber oder Geschäftsführer: weiter mit Schritt 3 (Betrieb mit Mitarbeitern) oder Schritt 4 (Einzelunternehmer)."],
+["1B Antwort: jemand anderes","Empfang oder Mitarbeiter: weiter mit Schritt 2."],
+["1C Antwort: Worum geht es?","„Um die Absicherung im Betrieb, kurz gesagt, ob bei Ihnen da etwas offen ist. Ich möchte nur zur richtigen Person.“ Danach zurück zur Frage nach der Zuständigkeit."],
+["H","2 Entscheider ermitteln"],
+["2 Entscheider ermitteln","„Wer ist das genau, und wann erreiche ich die Person am besten?“"],
+["2 Durchstellen","„Darf ich durchgestellt werden, oder ist es besser, ich rufe zu einer bestimmten Zeit zurück?“"],
+["2 Kein Durchstellen möglich","„Wie ist der Name und die Funktion? Dann kann ich mich direkt darauf beziehen.“ In die Liste eintragen: Name, Funktion, beste Zeit, Mitarbeiterzahl (falls genannt)."],
+["H","3 Betrieb mit Mitarbeitern"],
+["3 Einstieg","„Schön, dass ich Sie direkt habe. Ich halte es kurz: Wir unterstützen Betriebe in [Region] dabei, ihren Mitarbeitern Zusatzleistungen wie Altersvorsorge oder Krankenzusatz anzubieten, ohne dass beim Chef viel Arbeit anfällt. Ich weiß nicht, ob das bei Ihnen überhaupt ein Thema ist, deshalb eine Frage:“"],
+["3 Bedarfsfrage 1","„Bieten Sie Ihren Mitarbeitern aktuell schon etwas in die Richtung an, Altersvorsorge oder Gesundheit?“"],
+["3 Bedarfsfrage 2","„Wie läuft das bei Ihnen mit dem Thema Mitarbeiter finden und halten?“"],
+["3 Bedarfsfrage 3","„Wer kümmert sich bei Ihnen intern um sowas?“"],
+["3 Nutzen","Nur an das anknüpfen, was er gesagt hat: „Dann ist genau das der Punkt: Das lässt sich oft so aufsetzen, dass Sie ein Argument für Ihre Leute haben und der Aufwand überschaubar bleibt. Das ist aber individuell. Deshalb würde ich es nicht am Telefon erklären.“"],
+["H","4 Einzelunternehmer"],
+["4 Einstieg","„Schön, dass ich Sie direkt habe. Ich melde mich bei Selbstständigen in [Region], weil bei Einzelkämpfern die Absicherung oft nebenbei mitläuft. Haben Sie zwei Minuten?“"],
+["4 Bedarfsfrage 1","„Womit sind Sie selbstständig, und arbeiten Sie mit Maschinen oder Geräten?“"],
+["4 Bedarfsfrage 2","„Haben Sie Ihren Betrieb und Ihre Ausstattung abgesichert, und wann haben Sie das zuletzt prüfen lassen?“"],
+["4 Bedarfsfrage 3","„Was passiert bei Ihnen, wenn Sie ein paar Wochen ausfallen?“"],
+["4 Nutzen","„Gerade wenn man alles allein macht, hängt am Betrieb ja alles an einer Person. Ich schaue mir das gern kostenlos an und sage Ihnen ehrlich, ob etwas fehlt oder ob alles passt.“"],
+["H","5 Abschluss: Termin vereinbaren"],
+["5 Stufe 1 (Standard)","„Ich schlage vor, wir machen dazu ein kurzes Online-Gespräch, nur 10 Minuten. Danach wissen Sie, ob es für Sie Sinn ergibt, und ich verspreche Ihnen, dass es nicht länger dauert. Passt Ihnen eher [Tag] oder [Tag]?“"],
+["5 Stufe 2 (wenn Online nichts für ihn ist)","„Kein Problem. Dann komme ich gern kurz bei Ihnen vorbei, mit 15 Minuten kalkuliert. Wann sind Sie vor Ort, eher vormittags oder nachmittags?“"],
+["5 Stufe 3 (nur bei schon vorhandenem Interesse)","„Wenn Sie möchten, können Sie auch zu uns ins Büro kommen. Dann schauen wir in Ruhe gemeinsam drauf.“"],
+["H","6 Einwände"],
+["E","Kein Interesse|„Verstehe ich, ich habe Sie ja auch überrumpelt. Darf ich eine Frage stellen: Ist es kein Interesse, weil Sie schon alles geregelt haben, oder weil das Thema gerade nicht passt?“ Dann zuhören und darauf eingehen."],
+["E","Haben wir schon / macht mein Berater|„Sehr gut. Dann geht es mir auch nicht darum, etwas zu ersetzen. Wann wurde das zuletzt gemeinsam angeschaut? Eine zweite Sicht kostet Sie nichts.“"],
+["E","Keine Zeit / schicken Sie mir etwas per Mail|„Gern. Damit es nicht im Postfach versandet: Wäre ein Termin von 10 Minuten in der nächsten Woche besser? Dann erkläre ich Ihnen kurz, was ich meine, und Sie sehen, ob es passt.“ Lehnt er ab: E-Mail-Adresse und Rückruftermin abfragen und die passende E-Mail-Vorlage senden."],
+["E","Online mache ich nicht / keine Zeit für Termine|„Das verstehe ich. Es geht auch ohne Bildschirm: kurzer Anruf von 10 Minuten, oder ich komme zu Ihnen. Was ist Ihnen lieber?“"],
+["H","7 Kein Termin"],
+["7 Kein Termin","„Danke für Ihre Zeit. Darf ich mich in [Monat] nochmal kurz melden?“ In die Liste eintragen: Ergebnis, Name des Entscheiders, Wiedervorlage."],
+["H","Hinweis"],
+["Hinweis","Kaltakquise im B2B ist nur bei mutmaßlicher Einwilligung zulässig (§ 7 UWG). Die Begründung (Branche, Bezug zum Betrieb) dokumentierbar halten. Im Zweifel bei der Compliance von EFS nachfragen."]
+];
+function showDoc(){
+  var h='<h2>Gesamtes Skript</h2><p class="intro">Zum Durchlesen vor dem Telefonieren. Platzhalter in eckigen Klammern vor dem Anruf ausfüllen.</p>';
+  SK.forEach(function(r){
+    if(r[0]=="H"){h+='<div class="row ph"><div class="s" style="grid-column:1/-1">'+esc(r[1])+'</div></div>';}
+    else if(r[0]=="E"){var p=r[1].split("|");h+='<div class="row ew"><div class="s">Einwand: '+esc(p[0])+'</div><div class="x">'+esc(p[1])+'</div></div>';}
+    else{h+='<div class="row"><div class="s">'+esc(r[0])+'</div><div class="x">'+esc(r[1])+'</div></div>';}
+  });
+  var s=document.getElementById("skript");s.innerHTML=h;s.hidden=false;
+  document.getElementById("view").hidden=true;document.getElementById("trail").hidden=true;window.scrollTo(0,0);
+}
+document.getElementById("doc").onclick=showDoc;
 render();
 </script>
 </body>
